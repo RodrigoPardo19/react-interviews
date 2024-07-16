@@ -1,45 +1,23 @@
-import { useState, useEffect, useRef } from 'react';
 import './App.css';
-import { findAll } from './services/user.service';
-import { FiltersConfig, User } from './types/types';
 import { UserTable } from './components/UserTable';
 import { Filters } from './components/Filters';
+import { useUsers } from './hooks/useUsers';
+import { useFilters } from './hooks/useFilters';
+import { useMemo } from 'react';
 
 function App() {
-	const [users, setUsers] = useState<User[]>([]);
-	const initialUsers = useRef<User[]>([]);
-	const [filters, setFilters] = useState<FiltersConfig>({
-		isColored: false,
-		isSortedByCountry: false,
-		search: '',
-	});
+	const { users, deleteUser, resetUsers } = useUsers({ limit: 5 });
+	const { filters, printRows, sort, search } = useFilters();
 
-	useEffect(() => {
-		findAll({ limit: 10 }).then((response) => {
-			if (response) {
-				setUsers([...response]);
-				initialUsers.current = [...response];
-			}
-		});
-	}, []);
+	const filteredUsers = filters.isSortedByCountry
+		? users.filter((el) => el.location.country.toLowerCase().includes(filters.search.toLowerCase()))
+		: users;
 
-	const sortedUsers = filters.isSortedByCountry
-		? users
-			.filter((el) => el.location.country.toLowerCase().includes(filters.search.toLowerCase()))
-			.sort((a, b) => a.location.country.localeCompare(b.location.country))
-		: users.filter((el) =>
-			el.location.country.toLowerCase().includes(filters.search.toLowerCase()),
-		);
-
-	const deleteUser = (email: string) => {
-		setUsers((users) => {
-			return users.filter((el) => el.email !== email);
-		});
-	};
-
-	const resetUsers = () => {
-		setUsers([...initialUsers.current]);
-	};
+	const sortedUsers = useMemo(() => {
+		return filters.isSortedByCountry
+			? [...filteredUsers].sort((a, b) => a.location.country.localeCompare(b.location.country))
+			: filteredUsers;
+	}, [filters.isSortedByCountry, filteredUsers]);
 
 	return (
 		<>
@@ -47,8 +25,14 @@ function App() {
 				<h1>Lista de usuarios</h1>
 			</header>
 			<main>
-				<Filters filters={filters} setFilters={setFilters} resetUsers={resetUsers} />
-				<UserTable users={sortedUsers} filters={filters} deleteUser={deleteUser} />
+				<Filters
+					filters={filters}
+					printRows={printRows}
+					sort={sort}
+					search={search}
+					resetUsers={resetUsers}
+				/>
+				<UserTable users={sortedUsers} filters={filters} deleteUser={deleteUser} sort={sort} />
 			</main>
 		</>
 	);

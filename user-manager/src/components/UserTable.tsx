@@ -5,9 +5,10 @@ interface Props {
 	users: User[];
 	filters: FiltersConfig;
 	deleteUser: (email: string) => void;
+	sort: () => void;
 }
 
-export function UserTable({ users, filters, deleteUser }: Props) {
+export function UserTable({ users, filters, deleteUser, sort }: Props) {
 	const { isColored } = filters;
 
 	if (!users.length) {
@@ -25,7 +26,9 @@ export function UserTable({ users, filters, deleteUser }: Props) {
 					<th>photo</th>
 					<th>name</th>
 					<th>apellido</th>
-					<th>country</th>
+					<th style={{ cursor: 'pointer' }} onClick={sort}>
+						country ⬇️
+					</th>
 				</tr>
 			</thead>
 			<tbody>
