@@ -26,6 +26,8 @@ export function CartProvider({ children }: CartProviderProps) {
 	const [cart, setCart] = useState<CartItem[]>([]);
 
 	const fetchCart = async () => {
+		// Si descomentamos esta línea entonces podemos probar que el useEffect comentado de la línea 59 setea el cart con un arreglo vacío
+		// await new Promise((resolve) => setTimeout(resolve, 2000));
 		const item: CartItem[] = JSON.parse(localStorage.getItem('cart') ?? '[]');
 		setCart(item);
 		return item;
@@ -51,9 +53,16 @@ export function CartProvider({ children }: CartProviderProps) {
 		});
 	}, []);
 
-	useEffect(() => {
+	/* Esta podría haber sido otra forma de actualizar el localStorage, sin embargo decidí no utilizarla debido
+	a que puede traer bugs dependiendo de cuanto se demore en cargar la función fetchCart,
+	además de que los useEffect son más dificil de controlar por los sideEffects que pueden gatillarlo */
+	// useEffect(() => {
+	// 	localStorage.setItem('cart', JSON.stringify(cart));
+	// }, [cart])
+
+	const saveInLocalStorage = (cart: CartItem[]) => {
 		localStorage.setItem('cart', JSON.stringify(cart));
-	}, [cart]);
+	};
 
 	const increaseStock = (product: Product, count?: number) => {
 		if (products.some((el) => el.id === product.id)) {
@@ -80,47 +89,61 @@ export function CartProvider({ children }: CartProviderProps) {
 
 	const addToCart = (newProduct: Product) => {
 		if (cart.some((el) => el.product?.id === newProduct?.id)) {
-			setCart(
-				cart.map((el) => {
+			setCart((curr) => {
+				const updated = curr.map((el) => {
 					if (el.product.id === newProduct.id) return { ...el, count: el.count + 1 };
 					return { ...el };
-				}),
-			);
+				});
+				saveInLocalStorage(updated);
+				return updated;
+			});
 		} else {
-			setCart([...cart, { count: 1, product: { ...newProduct } }]);
+			setCart((curr) => {
+				const updated = [...curr, { count: 1, product: { ...newProduct } }];
+				saveInLocalStorage(updated);
+				return updated;
+			});
 		}
 		decreaseStock(newProduct);
 	};
 
 	const deleteFromCart = (item: CartItem) => {
 		const { product, count } = item;
-		setCart(cart.filter((el) => el.product.id !== product.id));
+		setCart((curr) => {
+			const updated = curr.filter((el) => el.product.id !== product.id);
+			saveInLocalStorage(updated);
+			return updated;
+		});
 		increaseStock(product, count);
 	};
 
 	const increaseItemCount = (product: Product) => {
-		setCart(
-			cart.map((el) => {
+		setCart((curr) => {
+			const updated = curr.map((el) => {
 				if (el.product.id === product.id) {
 					return { ...el, count: el.count + 1 };
 				}
 				return { ...el };
-			}),
-		);
+			});
+			saveInLocalStorage(updated);
+			return updated;
+		});
 		decreaseStock(product);
 	};
 
 	/* Acá utilicé un reduce el lugar de un map para agregar la condición de que si el count del item es igual a 0
 	se elimine del carrito en el mismo bucle, de otra forma tendría que haber hecho 2 iteraciones, una con map y luego un filter */
 	const decreaseItemCount = (product: Product) => {
-		setCart(
-			cart.reduce((acc, el) => {
+		setCart((curr) => {
+			const updated = curr.reduce((acc, el) => {
 				if (el.product.id === product.id) {
 					return el.count - 1 === 0 ? [...acc] : [...acc, { ...el, count: el.count - 1 }];
 				}
 				return [...acc, { ...el }];
-			}, [] as CartItem[]),
-		);
+			}, [] as CartItem[]);
+			saveInLocalStorage(updated);
+			return updated;
+		});
 		increaseStock(product);
 	};
 
