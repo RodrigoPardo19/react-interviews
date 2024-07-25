@@ -1,20 +1,13 @@
 import { useContext } from 'react';
 import { Product } from '../types/types';
 import { CartContext, CartContextType } from '../contexts/cart';
-import { ProductsContext, ProductsContextType } from '../contexts/products';
 
 interface Props {
 	product: Product;
 }
 
 export function ProductCard({ product }: Props) {
-	const { decreaseStock } = useContext(ProductsContext) as ProductsContextType;
 	const { addToCart } = useContext(CartContext) as CartContextType;
-
-	const handleAddToCart = (product: Product) => {
-		addToCart(product);
-		decreaseStock(product);
-	};
 
 	return (
 		<div
@@ -50,7 +43,7 @@ export function ProductCard({ product }: Props) {
 					<p style={{ margin: '0px', fontWeight: 'bold', fontSize: '24px' }}>${product.price}</p>
 					<button
 						style={{ backgroundColor: 'white', color: 'black' }}
-						onClick={() => handleAddToCart(product)}
+						onClick={() => addToCart(product)}
 					>
 						Agregar
 					</button>

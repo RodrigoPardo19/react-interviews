@@ -1,11 +1,7 @@
 import { PricingFilter } from './PricingFilter';
 import { SelectCategories } from './SelectCategories';
 
-interface Props {
-	categories: string[];
-}
-
-export function Filters({ categories }: Props) {
+export function Filters() {
 	return (
 		<div
 			style={{
@@ -16,7 +12,7 @@ export function Filters({ categories }: Props) {
 				width: '100%',
 			}}
 		>
-			<SelectCategories categories={categories} />
+			<SelectCategories />
 			<PricingFilter />
 		</div>
 	);

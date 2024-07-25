@@ -1,7 +1,7 @@
 import { INITIAL_CATEGORY, Product } from '../types/types';
 import { ProductCard } from './ProductCard';
 import { FiltersContext, FiltersContextType } from '../contexts/filters';
-import { ProductsContext, ProductsContextType } from '../contexts/products';
+import { CartContext, CartContextType } from '../contexts/cart';
 import { useContext } from 'react';
 
 const filterByPrincing = (princing: { min?: number; max?: number }, products: Product[]) => {
@@ -19,7 +19,7 @@ const filterByPrincing = (princing: { min?: number; max?: number }, products: Pr
 };
 
 export function Products() {
-	const { products } = useContext(ProductsContext) as ProductsContextType;
+	const { products } = useContext(CartContext) as CartContextType;
 	const { filters } = useContext(FiltersContext) as FiltersContextType;
 
 	const { pricing, category } = filters;

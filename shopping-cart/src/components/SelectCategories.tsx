@@ -1,11 +1,9 @@
 import { useContext } from 'react';
 import { FiltersContext, FiltersContextType } from '../contexts/filters';
+import { useCategories } from '../hooks/useCategories';
 
-interface Props {
-	categories: string[];
-}
-
-export function SelectCategories({ categories }: Props) {
+export function SelectCategories() {
+	const { categories } = useCategories();
 	const { filters, filterByCategory } = useContext(FiltersContext) as FiltersContextType;
 
 	return (
