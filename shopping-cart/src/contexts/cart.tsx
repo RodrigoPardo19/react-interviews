@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from 'react';
+import { createContext, ReactNode, useEffect, useReducer } from 'react';
 import { CartItem, Product } from '../types/types';
 import * as ProductService from '../services/product.service';
 
@@ -11,145 +11,148 @@ export interface CartContextType {
 	decreaseItemCount: (product: Product) => void;
 }
 
-interface CartProviderProps {
-	children: ReactNode;
+interface CartReducer {
+	cart: CartItem[];
+	products: Product[];
 }
+
+type Action =
+	| { type: 'INIT_PRODUCTS'; products: Product[] }
+	| { type: 'ADD_TO_CART' | 'INCREASE_ITEM_COUNT' | 'DECREASE_ITEM_COUNT'; product: Product }
+	| { type: 'DELETE_FROM_CART'; item: CartItem };
 
 export const CartContext = createContext<CartContextType | null>(null);
 
-// useContext vs customHooks vs Composition | useReducer vs useState | useMemo and useCallback when use them
-// the cart and products states should be together? they are in sync actually
-// Suppose that we want reuse Products from the server in different parts of the UI (por these problem custom hooks should be work's fine)
-// should i use useCallback o useMemo in context providers?
-export function CartProvider({ children }: CartProviderProps) {
-	const [products, setProducts] = useState<Product[]>([]);
-	const [cart, setCart] = useState<CartItem[]>([]);
+const getCartFromLocalStorage = () => {
+	return JSON.parse(localStorage.getItem('cart') ?? '[]');
+};
 
-	const fetchCart = async () => {
-		// Si descomentamos esta línea entonces podemos probar que el useEffect comentado de la línea 59 setea el cart con un arreglo vacío
-		// await new Promise((resolve) => setTimeout(resolve, 2000));
-		const item: CartItem[] = JSON.parse(localStorage.getItem('cart') ?? '[]');
-		setCart(item);
-		return item;
-	};
-
-	const fetchProducts = async () => {
-		return ProductService.findAll().then((response) => {
-			if (response) {
-				return response;
-			}
-			return [];
+const increaseStock = (products: Product[], product: Product, count?: number) => {
+	if (products.some((el) => el.id === product.id)) {
+		return products.map((el) => {
+			return el.id === product.id ? { ...el, stock: el.stock + (count ?? 1) } : { ...el };
 		});
-	};
+	}
 
-	useEffect(() => {
-		Promise.all([fetchCart(), fetchProducts()]).then(([cartData, productsData]) => {
-			setProducts(
-				productsData.map((el) => {
-					const item = cartData.find((c) => c.product.id === el.id);
+	return [...products, { ...product, stock: count ?? 1 }];
+};
+
+const decreaseStock = (products: Product[], product: Product) => {
+	return products.reduce((acc, el) => {
+		if (el.id === product.id) {
+			return el.stock - 1 === 0 ? [...acc] : [...acc, { ...el, stock: el.stock - 1 }];
+		}
+		return [...acc, { ...el }];
+	}, [] as Product[]);
+};
+
+function cartReducer(state: CartReducer, action: Action) {
+	const { type } = action;
+	const { cart, products } = state;
+
+	switch (type) {
+		case 'INIT_PRODUCTS': {
+			return {
+				cart: [...cart],
+				products: action.products.map((el) => {
+					const item = cart.find((c) => c.product.id === el.id);
 					return item ? { ...el, stock: el.stock - item.count } : { ...el };
 				}),
-			);
+			};
+		}
+		case 'ADD_TO_CART': {
+			if (cart.some((el) => el.product?.id === action.product?.id)) {
+				return {
+					cart: cart.map((el) => {
+						return el.product.id === action.product.id ? { ...el, count: el.count + 1 } : { ...el };
+					}),
+					products: decreaseStock(products, action.product),
+				};
+			} else {
+				return {
+					cart: [...cart, { count: 1, product: { ...action.product } }],
+					products: decreaseStock(products, action.product),
+				};
+			}
+		}
+		case 'DELETE_FROM_CART': {
+			const { item } = action;
+			const { product, count } = item;
+			return {
+				cart: cart.filter((el) => el.product.id !== product.id),
+				products: increaseStock(products, product, count),
+			};
+		}
+		case 'INCREASE_ITEM_COUNT': {
+			const { product } = action;
+			return {
+				cart: cart.map((el) => {
+					if (el.product.id === product.id) {
+						return { ...el, count: el.count + 1 };
+					}
+					return { ...el };
+				}),
+				products: decreaseStock(products, product),
+			};
+		}
+		case 'DECREASE_ITEM_COUNT': {
+			const { product } = action;
+			return {
+				cart: cart.reduce((acc, el) => {
+					if (el.product.id === product.id) {
+						return el.count - 1 === 0 ? [...acc] : [...acc, { ...el, count: el.count - 1 }];
+					}
+					return [...acc, { ...el }];
+				}, [] as CartItem[]),
+				products: increaseStock(products, product),
+			};
+		}
+	}
+}
+
+export function CartProvider({ children }: { children: ReactNode }) {
+	const [state, dispatch] = useReducer(cartReducer, { cart: [], products: [] }, () => {
+		return { cart: getCartFromLocalStorage(), products: [] };
+	});
+
+	useEffect(() => {
+		ProductService.findAll().then((response) => {
+			if (response) {
+				dispatch({ type: 'INIT_PRODUCTS', products: response });
+			}
 		});
 	}, []);
 
-	/* Esta podría haber sido otra forma de actualizar el localStorage, sin embargo decidí no utilizarla debido
-	a que puede traer bugs dependiendo de cuanto se demore en cargar la función fetchCart,
-	además de que los useEffect son más dificil de controlar por los sideEffects que pueden gatillarlo */
-	// useEffect(() => {
-	// 	localStorage.setItem('cart', JSON.stringify(cart));
-	// }, [cart])
+	useEffect(() => {
+		localStorage.setItem('cart', JSON.stringify(state.cart));
+	}, [state.cart]);
 
-	const saveInLocalStorage = (cart: CartItem[]) => {
-		localStorage.setItem('cart', JSON.stringify(cart));
-	};
-
-	const increaseStock = (product: Product, count?: number) => {
-		if (products.some((el) => el.id === product.id)) {
-			setProducts(
-				products.map((el) => {
-					return el.id === product.id ? { ...el, stock: el.stock + (count ?? 1) } : { ...el };
-				}),
-			);
-		} else {
-			setProducts([...products, { ...product, stock: count ?? 1 }]);
-		}
-	};
-
-	const decreaseStock = (product: Product) => {
-		setProducts(
-			products.reduce((acc, el) => {
-				if (el.id === product.id) {
-					return el.stock - 1 === 0 ? [...acc] : [...acc, { ...el, stock: el.stock - 1 }];
-				}
-				return [...acc, { ...el }];
-			}, [] as Product[]),
-		);
-	};
-
-	const addToCart = (newProduct: Product) => {
-		if (cart.some((el) => el.product?.id === newProduct?.id)) {
-			setCart((curr) => {
-				const updated = curr.map((el) => {
-					if (el.product.id === newProduct.id) return { ...el, count: el.count + 1 };
-					return { ...el };
-				});
-				saveInLocalStorage(updated);
-				return updated;
-			});
-		} else {
-			setCart((curr) => {
-				const updated = [...curr, { count: 1, product: { ...newProduct } }];
-				saveInLocalStorage(updated);
-				return updated;
-			});
-		}
-		decreaseStock(newProduct);
+	const addToCart = (product: Product) => {
+		dispatch({ type: 'ADD_TO_CART', product });
 	};
 
 	const deleteFromCart = (item: CartItem) => {
-		const { product, count } = item;
-		setCart((curr) => {
-			const updated = curr.filter((el) => el.product.id !== product.id);
-			saveInLocalStorage(updated);
-			return updated;
-		});
-		increaseStock(product, count);
+		dispatch({ type: 'DELETE_FROM_CART', item });
 	};
 
 	const increaseItemCount = (product: Product) => {
-		setCart((curr) => {
-			const updated = curr.map((el) => {
-				if (el.product.id === product.id) {
-					return { ...el, count: el.count + 1 };
-				}
-				return { ...el };
-			});
-			saveInLocalStorage(updated);
-			return updated;
-		});
-		decreaseStock(product);
+		dispatch({ type: 'INCREASE_ITEM_COUNT', product });
 	};
 
-	/* Acá utilicé un reduce el lugar de un map para agregar la condición de que si el count del item es igual a 0
-	se elimine del carrito en el mismo bucle, de otra forma tendría que haber hecho 2 iteraciones, una con map y luego un filter */
 	const decreaseItemCount = (product: Product) => {
-		setCart((curr) => {
-			const updated = curr.reduce((acc, el) => {
-				if (el.product.id === product.id) {
-					return el.count - 1 === 0 ? [...acc] : [...acc, { ...el, count: el.count - 1 }];
-				}
-				return [...acc, { ...el }];
-			}, [] as CartItem[]);
-			saveInLocalStorage(updated);
-			return updated;
-		});
-		increaseStock(product);
+		dispatch({ type: 'DECREASE_ITEM_COUNT', product });
 	};
 
 	return (
 		<CartContext.Provider
-			value={{ cart, products, addToCart, deleteFromCart, increaseItemCount, decreaseItemCount }}
+			value={{
+				cart: state.cart,
+				products: state.products,
+				addToCart,
+				deleteFromCart,
+				increaseItemCount,
+				decreaseItemCount,
+			}}
 		>
 			{children}
 		</CartContext.Provider>

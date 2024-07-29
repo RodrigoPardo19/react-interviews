@@ -4,7 +4,7 @@ export async function findAll(): Promise<string[] | undefined> {
 	try {
 		const response = await fetch('./src/services/products.json');
 		if (!response.ok) {
-			throw new Error('Errorcinho');
+			throw new Error('Error');
 		}
 
 		const { products }: PaginatedProducs = await response.json();
