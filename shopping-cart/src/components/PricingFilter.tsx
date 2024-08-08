@@ -20,6 +20,7 @@ export function PricingFilter() {
 			<div style={{ display: 'flex', gap: '4px' }}>
 				<input
 					id="pricing-filter"
+					name="min"
 					type="number"
 					placeholder="Mínimo"
 					onChange={handleMin}
@@ -28,6 +29,7 @@ export function PricingFilter() {
 				<hr style={{ height: '0.9rem' }} />
 				<input
 					type="number"
+					name="max"
 					placeholder="Máximo"
 					onChange={handleMax}
 					style={{ height: '1rem', padding: '8px' }}
