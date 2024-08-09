@@ -5,11 +5,17 @@ export function PricingFilter() {
 	const { filterByPricing } = useContext(FiltersContext) as FiltersContextType;
 
 	const handleMin = (event: React.ChangeEvent<HTMLInputElement>) => {
-		filterByPricing({ min: Number(event.target.value) });
+		const min = Number(event.target.value);
+		if (min > 0 && !isNaN(min)) {
+			filterByPricing({ min });
+		}
 	};
 
 	const handleMax = (event: React.ChangeEvent<HTMLInputElement>) => {
-		filterByPricing({ max: Number(event.target.value) });
+		const max = Number(event.target.value);
+		if (max > 0 && !isNaN(max)) {
+			filterByPricing({ max });
+		}
 	};
 
 	return (
