@@ -11,6 +11,7 @@ export function ProductCard({ product }: Props) {
 
 	return (
 		<div
+			role="listitem"
 			style={{
 				display: 'flex',
 				flexDirection: 'column',
@@ -30,17 +31,29 @@ export function ProductCard({ product }: Props) {
 						justifyContent: 'space-between',
 					}}
 				>
-					<p style={{ margin: '0px' }}>{product.brand}</p>
-					<p style={{ margin: '0px', border: '1px solid #5B5B5B', padding: '2px 2rem' }}>
+					<p id="product-brand" style={{ margin: '0px' }}>
+						{product.brand}
+					</p>
+					<p
+						id="product-stock"
+						style={{ margin: '0px', border: '1px solid #5B5B5B', padding: '2px 2rem' }}
+					>
 						stock <strong>{product.stock}</strong>
 					</p>
 				</div>
-				<p style={{ margin: '0px', textAlign: 'start', fontWeight: 'bold', fontSize: '18px' }}>
+				<p
+					id="product-title"
+					style={{ margin: '0px', textAlign: 'start', fontWeight: 'bold', fontSize: '18px' }}
+				>
 					{product.title}
 				</p>
-				<p style={{ margin: '0px', textAlign: 'start' }}>{product.description}</p>
+				<p id="product-description" style={{ margin: '0px', textAlign: 'start' }}>
+					{product.description}
+				</p>
 				<div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-					<p style={{ margin: '0px', fontWeight: 'bold', fontSize: '24px' }}>${product.price}</p>
+					<p id="product-price" style={{ margin: '0px', fontWeight: 'bold', fontSize: '24px' }}>
+						${product.price}
+					</p>
 					<button
 						style={{ backgroundColor: 'white', color: 'black' }}
 						onClick={() => addToCart(product)}

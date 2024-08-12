@@ -20,4 +20,7 @@ Here are the steps to follow:
 - [X] Guarda en un localStorage el carrito para que se recupere al recargar la página.
 
 Run the project: pnpm i && pnpm run dev
+Run test:
+ - unit tests: pnpm run test:unit
+ - e2e tests: pnpm run dev && pnpm run test:e2e
 

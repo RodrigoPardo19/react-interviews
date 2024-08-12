@@ -44,6 +44,7 @@ export function Products() {
 			<p>Total: {filteredByPricing.length}</p>
 
 			<div
+				role="list"
 				style={{
 					display: 'grid',
 					gridTemplateColumns: 'repeat(5, 1fr)',
