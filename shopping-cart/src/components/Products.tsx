@@ -1,22 +1,9 @@
-import { INITIAL_CATEGORY, Product } from '../types/types';
+import { INITIAL_CATEGORY } from '../types/types';
 import { ProductCard } from './ProductCard';
 import { FiltersContext, FiltersContextType } from '../contexts/filters';
 import { CartContext, CartContextType } from '../contexts/cart';
 import { useContext } from 'react';
-
-const filterByPrincing = (princing: { min?: number; max?: number }, products: Product[]) => {
-	const { min, max } = princing;
-	if (min && max) {
-		return products.filter((el) => el.price >= min && el.price <= max);
-	}
-	if (min) {
-		return products.filter((el) => el.price >= min);
-	}
-	if (max) {
-		return products.filter((el) => el.price <= max);
-	}
-	return products;
-};
+import { filterByPrincing } from '../utils/filter-by-price';
 
 export function Products() {
 	const { products } = useContext(CartContext) as CartContextType;
@@ -33,7 +20,7 @@ export function Products() {
 
 	if (!filteredByPricing.length) {
 		return (
-			<div>
+			<div role="status">
 				<p>No data</p>
 			</div>
 		);

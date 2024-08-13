@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { PricingFilter } from '../components/PricingFilter';
-import { FiltersContext } from '../contexts/filters';
+import { PricingFilter } from '../../components/PricingFilter';
+import { FiltersContext } from '../../contexts/filters';
 import userEvent from '@testing-library/user-event';
-import { INITIAL_CATEGORY } from '../types/types';
+import { INITIAL_CATEGORY } from '../../types/types';
 
 const setup = () => {
 	const filters = { category: INITIAL_CATEGORY, pricing: { min: 0, max: 0 } };
@@ -22,14 +22,8 @@ const setup = () => {
 	return { minInput, filterByPricing, maxInput };
 };
 
-// TODO: Hay que aprender a testear diferentes partes por ejemplo los components, reducers, contexts y hooks (quizá estos serían más unitarios)
 describe('Pricing Filter Component', () => {
-	// E2E (happy path): debería ser que al filtrar por precio cambien la lista de productos (hacer con playwright)
-
 	// Integration Test (mock de api call)
-	// TODO: Configurar de buena manera vitest y react testing library para integration tests (before each)
-	// TODO: Aprender buenas prácticas (don't test implementation details) leer blog de Kent C Dodds
-	// TODO: Como mockear las api calls que están dentro de un contexto y las que están dentro de un useEffect
 	it('should change the min pricing state when i type in the min input, and the max should be empty string', async () => {
 		const { minInput, filterByPricing, maxInput } = setup();
 		const MIN_PRICE = '10000';
@@ -65,7 +59,6 @@ describe('Pricing Filter Component', () => {
 		expect(filterByPricing).toHaveBeenCalledWith({ max: Number(MAX_PRICE) });
 	});
 
-	// TODO: the functions "handleMin and handleMax" in the component should be a unit test
 	it('should not set the new state when a non positive number is typed in', async () => {
 		const { minInput, maxInput, filterByPricing } = setup();
 		const NEGATIVE_NUMBER = '-50';

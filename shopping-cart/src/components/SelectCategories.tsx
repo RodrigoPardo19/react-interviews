@@ -6,8 +6,6 @@ export function SelectCategories() {
 	const { categories } = useCategories();
 	const { filters, filterByCategory } = useContext(FiltersContext) as FiltersContextType;
 
-	console.log('******************************* categories', categories);
-
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column' }}>
 			<label style={{ fontSize: '14px', textAlign: 'start' }} htmlFor="category-filter">
