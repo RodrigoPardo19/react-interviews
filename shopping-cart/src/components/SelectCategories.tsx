@@ -6,6 +6,8 @@ export function SelectCategories() {
 	const { categories } = useCategories();
 	const { filters, filterByCategory } = useContext(FiltersContext) as FiltersContextType;
 
+	console.log('******************************* categories', categories);
+
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column' }}>
 			<label style={{ fontSize: '14px', textAlign: 'start' }} htmlFor="category-filter">
@@ -13,6 +15,7 @@ export function SelectCategories() {
 			</label>
 			<select
 				id="category-filter"
+				name="category"
 				value={filters.category}
 				onChange={(event) => filterByCategory(event.target.value)}
 				style={{ padding: '8px' }}

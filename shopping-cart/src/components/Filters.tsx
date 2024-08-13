@@ -3,7 +3,8 @@ import { SelectCategories } from './SelectCategories';
 
 export function Filters() {
 	return (
-		<div
+		<form
+			id="filters-form"
 			style={{
 				display: 'flex',
 				gap: '8px',
@@ -14,6 +15,6 @@ export function Filters() {
 		>
 			<SelectCategories />
 			<PricingFilter />
-		</div>
+		</form>
 	);
 }

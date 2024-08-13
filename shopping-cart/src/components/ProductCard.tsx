@@ -50,6 +50,9 @@ export function ProductCard({ product }: Props) {
 				<p id="product-description" style={{ margin: '0px', textAlign: 'start' }}>
 					{product.description}
 				</p>
+				<p id="product-category" hidden>
+					{product.category}
+				</p>
 				<div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
 					<p id="product-price" style={{ margin: '0px', fontWeight: 'bold', fontSize: '24px' }}>
 						${product.price}
