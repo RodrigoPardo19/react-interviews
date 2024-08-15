@@ -11,7 +11,9 @@ export function ProductCard({ product }: Props) {
 
 	return (
 		<div
+			id="product-item"
 			role="listitem"
+			aria-label="product-item"
 			style={{
 				display: 'flex',
 				flexDirection: 'column',
@@ -35,7 +37,7 @@ export function ProductCard({ product }: Props) {
 						{product.brand}
 					</p>
 					<p
-						id="product-stock"
+						data-testid="product-stock"
 						style={{ margin: '0px', border: '1px solid #5B5B5B', padding: '2px 2rem' }}
 					>
 						stock <strong>{product.stock}</strong>
@@ -58,6 +60,8 @@ export function ProductCard({ product }: Props) {
 						${product.price}
 					</p>
 					<button
+						name="add-to-cart"
+						aria-label="add-to-cart"
 						style={{ backgroundColor: 'white', color: 'black' }}
 						onClick={() => addToCart(product)}
 					>

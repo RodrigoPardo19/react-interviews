@@ -25,7 +25,7 @@ export function Cart() {
 	}, [cart]);
 
 	return (
-		<div>
+		<div id="cart" aria-label="cart">
 			<div
 				style={{
 					display: 'flex',
@@ -36,6 +36,7 @@ export function Cart() {
 				<p style={{ fontWeight: 'bold', fontSize: '24px' }}>Carrito</p>
 				<p style={{ fontWeight: 'bold', fontSize: '24px' }}>{cart.length}</p>
 				<button
+					aria-label="show-cart"
 					style={{ backgroundColor: 'yellow', color: 'black', height: '50px' }}
 					onClick={openCart}
 				>
@@ -52,7 +53,7 @@ export function Cart() {
 							</button>
 						</div>
 						{!cart.length ? (
-							<p>No hay productos en tu carrito :C</p>
+							<p role="status">No hay productos en tu carrito :C</p>
 						) : (
 							<div
 								style={{
@@ -64,18 +65,27 @@ export function Cart() {
 							>
 								{cart.map((el) => (
 									<div
+										id="cart-items"
 										key={el.product.title}
 										style={{ display: 'flex', gap: '8px', alignItems: 'end' }}
 									>
 										<CardItemCard product={el.product} />
 										<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
 											<div>
-												<p style={{ margin: '0' }}>Cantidad {el.count}</p>
+												<p data-testid="cart-item-count" style={{ margin: '0' }}>
+													Cantidad {el.count}
+												</p>
 												<div style={{ display: 'flex', gap: '4px' }}>
-													<button style={{}} onClick={() => increaseItemCount(el.product)}>
+													<button
+														aria-label="increase-item-count"
+														onClick={() => increaseItemCount(el.product)}
+													>
 														+
 													</button>
-													<button style={{}} onClick={() => decreaseItemCount(el.product)}>
+													<button
+														aria-label="decrease-item-count"
+														onClick={() => decreaseItemCount(el.product)}
+													>
 														-
 													</button>
 												</div>
