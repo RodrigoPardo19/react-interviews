@@ -61,13 +61,4 @@ test.describe('Add item to cart', () => {
 
 		expect(cartInLocalStorage.length).toBe(ITEMS_IN_THE_CART);
 	});
-
-	// integration test
-	// test('cuando agrego un item y el stock de ese producto llega a 0, entonces la lista de producto no debería renderizar ese producto', () => {});
-	// test('si no hay productos en el carrito se debe mostrar un mensaje de vacío', () => {});
-	// test('no sé si combiene testear un reducer como un test de integración', () => {});
-
-	// unit test
-	// test('increase stock', () => {});
-	// test('decrease stock', () => {});
 });

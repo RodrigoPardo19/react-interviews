@@ -53,7 +53,9 @@ export function Cart() {
 							</button>
 						</div>
 						{!cart.length ? (
-							<p role="status">No hay productos en tu carrito :C</p>
+							<p data-testid="cart-no-items" role="status">
+								No hay productos en tu carrito :C
+							</p>
 						) : (
 							<div
 								style={{
@@ -91,6 +93,7 @@ export function Cart() {
 												</div>
 											</div>
 											<button
+												aria-label="delete-from-cart"
 												style={{ backgroundColor: 'red', color: 'white' }}
 												onClick={() => deleteFromCart(el)}
 											>
